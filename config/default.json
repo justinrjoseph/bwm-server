@@ -1,0 +1,4 @@
+{
+  "jwtPrivateKey": "bwm_jwtPrivateKey",
+  "db": "mongodb://localhost/bwm"
+}
