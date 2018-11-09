@@ -1,8 +1,12 @@
 const express = require('express'),
-      rentals = require('../routes/rentals')
+      auth = require('../routes/auth'),
+      users = require('../routes/users'),
+      rentals = require('../routes/rentals');
 
 module.exports = (app) => {
   app.use(express.json())
 
+  app.use('/api/auth', auth);
+  app.use('/api/users', users);
   app.use('/api/rentals', rentals);
 };

@@ -1,8 +1,36 @@
-const Rental = require('../models/rental');
+const { User } = require('../models/user'),
+      Rental = require('../models/rental');
 
 class Seeder {
-  static seedDb() {
-    const rentals = [
+  static async seedDb() {
+    await this.cleanDb();
+
+    await this.generateUsers();
+
+    this.generateRentals();
+  }
+
+  static async cleanDb() {
+    await User.deleteMany();
+    await Rental.deleteMany();
+
+    console.log('Databased cleaned.');
+  }
+
+  static async generateUsers() {
+    await User.collection.insertOne({
+      name: 'Test User',
+      email: 'test@gmail.com',
+      password: 'asdf1234'
+    });
+
+    console.log('Test user inserted into DB.');
+  }
+
+  static async generateRentals() {
+    const user = await User.findOne();
+
+    await Rental.collection.insertMany([
       {
         image: "https://booksync-jerga-prod.s3.amazonaws.com/uploads/rental/image/5/image.jpeg",
         title: "Nice view on ocean",
@@ -12,7 +40,8 @@ class Seeder {
         bedrooms: 4,
         shared: true,
         description: "Very nice apartment in center of the city.",
-        dailyRate: 43
+        dailyRate: 43,
+        user: user._id
       },
       {
         image: "https://booksync-jerga-prod.s3.amazonaws.com/uploads/rental/image/5/image.jpeg",
@@ -23,7 +52,8 @@ class Seeder {
         bedrooms: 1,
         shared: false,
         description: "Very nice apartment in center of the city.",
-        dailyRate: 11
+        dailyRate: 11,
+        user: user._id
       },
       {
         image: "https://booksync-jerga-prod.s3.amazonaws.com/uploads/rental/image/5/image.jpeg",
@@ -34,10 +64,16 @@ class Seeder {
         bedrooms: 5,
         shared: true,
         description: "Very nice apartment in center of the city.",
-        dailyRate: 23
-    }];
+        dailyRate: 23,
+        user: user._id
+      }
+    ]);
 
-    rentals.forEach((rental) => new Rental(rental).save());
+    const rentals = await Rental.find();
+
+    rentals.forEach((rental) => user.rentals = [...user.rentals, rental]);
+
+    await user.save();
 
     console.log('Test rentals inserted into DB.');
   }
