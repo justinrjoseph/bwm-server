@@ -18,17 +18,25 @@ class Seeder {
   }
 
   static async generateUsers() {
-    await User.collection.insertOne({
-      name: 'Test User',
-      email: 'test@gmail.com',
-      password: 'asdf1234'
-    });
+    await User.collection.insertMany([
+      {
+        name: 'Test User 1',
+        email: 'test1@gmail.com',
+        password: 'asdf1234'
+      },
+      {
+        name: 'Test User 2',
+        email: 'test2@gmail.com',
+        password: 'asdf1234'
+      }
+    ]);
 
     console.log('Test user inserted into DB.');
   }
 
   static async generateRentals() {
-    const user = await User.findOne();
+    const user1 = await User.findOne({ name: 'Test User 1' });
+    const user2 = await User.findOne({ name: 'Test User 2' });
 
     await Rental.collection.insertMany([
       {
@@ -41,7 +49,7 @@ class Seeder {
         shared: true,
         description: "Very nice apartment in center of the city.",
         dailyRate: 43,
-        user: user._id
+        user: user1._id
       },
       {
         image: "https://booksync-jerga-prod.s3.amazonaws.com/uploads/rental/image/5/image.jpeg",
@@ -53,7 +61,7 @@ class Seeder {
         shared: false,
         description: "Very nice apartment in center of the city.",
         dailyRate: 11,
-        user: user._id
+        user: user1._id
       },
       {
         image: "https://booksync-jerga-prod.s3.amazonaws.com/uploads/rental/image/5/image.jpeg",
@@ -65,15 +73,16 @@ class Seeder {
         shared: true,
         description: "Very nice apartment in center of the city.",
         dailyRate: 23,
-        user: user._id
+        user: user1._id
       }
     ]);
 
     const rentals = await Rental.find();
 
-    rentals.forEach((rental) => user.rentals = [...user.rentals, rental]);
+    rentals.forEach((rental) => user1.rentals = [...user1.rentals, rental]);
 
-    await user.save();
+    await user1.save();
+    await user2.save();
 
     console.log('Test rentals inserted into DB.');
   }

@@ -17,11 +17,9 @@ router.post('/', validatePayload(user), async (req, res) => {
 
   await user.save();
 
-  const { _id } = user;
-
   const token = user.generateJwt();
 
-  res.header('x-auth-token', token).send({ _id, name, email });
+  res.send({ token });
 });
 
 module.exports = router;
