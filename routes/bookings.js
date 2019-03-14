@@ -1,9 +1,8 @@
 const express = require('express'),
       router = express.Router(),
       auth = require('../middleware/auth'),
-      { Booking, bookingDatesValid } = require('../models/booking'),
-      { User } = require('../models/user'),
-      Rental = require('../models/rental');
+      { bookingDatesValid } = require('../models/booking'),
+      { User, Booking, Rental } = require('../models');
 
 const rentalNotFoundMsg = 'Rental not found.'
 

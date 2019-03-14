@@ -1,6 +1,6 @@
 const express = require('express'),
       router = express.Router(),
-      Rental = require('../models/rental');
+      { Rental } = require('../models');
 
 const rentalNotFoundMsg = 'Rental not found.'
 
