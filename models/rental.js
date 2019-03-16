@@ -1,4 +1,5 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose'),
+      Joi = require('joi');
 
 const Rental = mongoose.model('Rental', new mongoose.Schema({
   image: {
@@ -45,5 +46,21 @@ const Rental = mongoose.model('Rental', new mongoose.Schema({
   }]
 }));
 
-module.exports = Rental;
+function validate(rental) {
+  const schema = {
+    image: Joi.required(),
+    title: Joi.string().required().max(128),
+    street: Joi.string().required().min(4),
+    city: Joi.string().required(),
+    category: Joi.string().required(),
+    bedrooms: Joi.number(),
+    shared: Joi.boolean(),
+    description: Joi.string().required(),
+    dailyRate: Joi.number()
+  };
+
+  return Joi.validate(rental, schema);
+}
+
+module.exports = { Rental, validate };
 

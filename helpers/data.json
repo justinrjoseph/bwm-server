@@ -1,0 +1,93 @@
+{
+  "rentals": [
+    {
+      "image": "https://booksync-jerga-prod.s3.amazonaws.com/uploads/rental/image/5/image.jpeg",
+      "title": "Nice view on ocean",
+      "street": "Main Street",
+      "city": "San Francisco",
+      "category": "condo",
+      "bedrooms": 4,
+      "shared": false,
+      "description": "Very nice apartment in center of the city.",
+      "dailyRate": 43
+    },
+    {
+      "image": "https://booksync-jerga-prod.s3.amazonaws.com/uploads/rental/image/5/image.jpeg",
+      "title": "Modern apartment in center",
+      "street": "Times Square",
+      "city": "New York",
+      "category": "apartment",
+      "bedrooms": 1,
+      "shared": true,
+      "description": "Very nice apartment in center of the city.",
+      "dailyRate": 11
+    },
+    {
+      "image": "https://booksync-jerga-prod.s3.amazonaws.com/uploads/rental/image/5/image.jpeg",
+      "title": "Old house in nature",
+      "street": "Banicka 1",
+      "city": "Spisska Nova Ves",
+      "category": "house",
+      "bedrooms": 5,
+      "shared": false,
+      "description": "Very nice apartment in center of the city.",
+      "dailyRate": 23
+    },
+    {
+      "image": "https://booksync-jerga-prod.s3.amazonaws.com/uploads/rental/image/5/image.jpeg",
+      "title": "Amazing modern place",
+      "street": "Green street",
+      "city": "San Francisco",
+      "category": "house",
+      "bedrooms": 2,
+      "shared": false,
+      "description": "Hiking routes 10 min walking away",
+      "dailyRate": 140
+    },
+    {
+      "image": "https://booksync-jerga-prod.s3.amazonaws.com/uploads/rental/image/5/image.jpeg",
+      "title": "Apartment In China Town",
+      "street": "Union Street",
+      "city": "San Francisco",
+      "category": "apartment",
+      "bedrooms": 3,
+      "shared": false,
+      "description": "Very nice apartment in China Town",
+      "dailyRate": 89
+    },
+    {
+      "image": "https://booksync-jerga-prod.s3.amazonaws.com/uploads/rental/image/5/image.jpeg",
+      "title": "House with Garden",
+      "street": "Long Island, Queens",
+      "city": "New York",
+      "category": "house",
+      "bedrooms": 6,
+      "shared": false,
+      "description": "Very nice house in Long Island with garden",
+      "dailyRate": 189
+    },
+    {
+      "image": "https://booksync-jerga-prod.s3.amazonaws.com/uploads/rental/image/5/image.jpeg",
+      "title": "Cozy modern Condo",
+      "street": "Penn Station",
+      "city": "New York",
+      "category": "condo",
+      "bedrooms": 3,
+      "shared": true,
+      "description": "Building close to Penn Station",
+      "dailyRate": 68
+    }
+  ],
+  "users": [
+    {
+      "name": "Test User 1",
+      "email": "test1@gmail.com",
+      "password": "asdf1234"
+    },
+    {
+      "name": "Test User 2",
+      "email": "test2@gmail.com",
+      "password": "asdf1234"
+    }
+  ]
+}

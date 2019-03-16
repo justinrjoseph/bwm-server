@@ -1,14 +1,28 @@
 const express = require('express'),
       router = express.Router(),
-      { Rental } = require('../models');
+      auth = require('../middleware/auth'),
+      validatePayload = require('../middleware/validatePayload'),
+      { Rental, User } = require('../models'),
+      { validate: rental } = require('../models/rental');
 
 const rentalNotFoundMsg = 'Rental not found.'
 
 router.get('/', async (req, res) => {
-  const rentals = await Rental.find()
-    .sort({ createdAt: 1 })
-    .select({ __v: 0 })
-    .select('-bookings');
+  const { city } = req.query;
+
+  const query = city ? { city: new RegExp(city, 'i') } : {};
+
+  const rentals = await Rental.find(query)
+      .sort({ createdAt: 1 })
+      .select({ __v: 0, bookings: 0 })
+
+  if ( !rentals.length ) {
+    const msg = city
+      ? `No rentals found for ${titlecase(city)}.`
+      : 'No rentals found.';
+
+    return res.status(404).send(msg);
+  }
 
   res.send(rentals);
 });
@@ -25,5 +39,52 @@ router.get('/:id', async (req, res) => {
 
   res.send(rental);
 });
+
+router.post('/', [auth, validatePayload(rental)], async (req, res) => {
+  const {
+    image,
+    title,
+    street,
+    city,
+    category,
+    bedrooms,
+    shared,
+    description,
+    dailyRate
+  } = req.body;
+
+  const user = res.locals.user;
+
+  const rental = new Rental({
+    image,
+    title,
+    street,
+    city,
+    category,
+    bedrooms,
+    shared,
+    description,
+    dailyRate,
+    user
+  });
+
+  await rental.save();
+
+  await User.updateOne({ _id: user._id }, {
+    $push: { rentals: rental }
+  });
+
+  res.send(rental);
+});
+
+function titlecase(string) {
+  var splitString = string.toLowerCase().split(' ');
+
+  for (let i = 0; i < splitString.length; i++) {
+    splitString[i] = `${splitString[i].charAt(0).toUpperCase()}${splitString[i].substring(1)}`;
+  }
+
+  return splitString.join(' ');
+}
 
 module.exports = router;;
