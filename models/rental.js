@@ -2,14 +2,23 @@ const mongoose = require('mongoose'),
       Joi = require('joi');
 
 const Rental = mongoose.model('Rental', new mongoose.Schema({
-  image: {
+  category: {
     type: String,
-    required: true
+    required: true,
+    lowercase: true
   },
   title: {
     type: String,
     required: true,
     max: [128, 'Title may not exceed 128 characters.']
+  },
+  description: {
+    type: String,
+    required: true
+  },
+  image: {
+    type: String,
+    required: true
   },
   street: {
     type: String,
@@ -20,18 +29,9 @@ const Rental = mongoose.model('Rental', new mongoose.Schema({
     type: String,
     required: true
   },
-  category: {
-    type: String,
-    required: true,
-    lowercase: true
-  },
   bedrooms: Number,
-  shared: Boolean,
-  description: {
-    type: String,
-    required: true
-  },
   dailyRate: Number,
+  shared: Boolean,
   createdAt: {
     type: Date,
     default: Date.now
