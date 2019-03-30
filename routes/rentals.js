@@ -96,8 +96,8 @@ router.delete('/:id', auth, async (req, res) => {
     .populate('user', '_id')
     .populate({
       path: 'bookings',
-      select: 'startAt',
-      match: { startAt: { $gt: new Date() } }
+      select: 'start',
+      match: { start: { $gt: new Date() } }
     });
 
   if ( !rental ) return res.status(404).send(rentalNotFoundMsg);
@@ -107,7 +107,7 @@ router.delete('/:id', auth, async (req, res) => {
   }
 
   if ( rental.bookings.length ) {
-    return res.status(400).end('Rental has active bookings.');
+    return res.status(400).send('Rental has active bookings.');
   }
 
   await rental.remove();
