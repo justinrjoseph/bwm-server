@@ -5,7 +5,8 @@ const express = require('express'),
       { Rental, User } = require('../models'),
       { validate: rental } = require('../models/rental');
 
-const rentalNotFoundMsg = 'Rental not found.'
+const noRentalsFoundMsg = 'No rentals found.';
+const rentalNotFoundMsg = 'Rental not found.';
 
 router.get('/', async (req, res) => {
   const { city } = req.query;
@@ -19,10 +20,21 @@ router.get('/', async (req, res) => {
   if ( !rentals.length ) {
     const msg = city
       ? `No rentals found for ${titlecase(city)}.`
-      : 'No rentals found.';
+      : noRentalsFoundMsg;
 
     return res.status(404).send(msg);
   }
+
+  res.send(rentals);
+});
+
+router.get('/manage', auth, async (req, res) => {
+  const user = res.locals.user;
+
+  const rentals = await Rental.where({ user })
+    .populate('bookings');
+
+  if ( !rentals ) return res.status(404).send(noRentalsFoundMsg);
 
   res.send(rentals);
 });
@@ -77,10 +89,38 @@ router.post('/', [auth, validatePayload(rental)], async (req, res) => {
   res.send(rental);
 });
 
+router.delete('/:id', auth, async (req, res) => {
+  const user = res.locals.user;
+
+  const rental = await Rental.findById(req.params.id)
+    .populate('user', '_id')
+    .populate({
+      path: 'bookings',
+      select: 'startAt',
+      match: { startAt: { $gt: new Date() } }
+    });
+
+  if ( !rental ) return res.status(404).send(rentalNotFoundMsg);
+
+  if ( !user._id.equals(rental.user._id) ) {
+    return res.status(403).send('You are not the owner of that rental.');
+  }
+
+  if ( rental.bookings.length ) {
+    return res.status(400).end('Rental has active bookings.');
+  }
+
+  await rental.remove();
+
+  const { _id } = rental;
+
+  res.send({ _id });
+});
+
 function titlecase(string) {
   var splitString = string.toLowerCase().split(' ');
 
-  for (let i = 0; i < splitString.length; i++) {
+  for ( let i = 0; i < splitString.length; i++ ) {
     splitString[i] = `${splitString[i].charAt(0).toUpperCase()}${splitString[i].substring(1)}`;
   }
 

@@ -14,6 +14,17 @@ router.get('/', async (req, res) => {
   res.send(bookings);
 });
 
+router.get('/manage', auth, async (req, res) => {
+  const user = res.locals.user;
+
+  const bookings = await Booking.where({ user })
+    .populate('rental');
+
+  if ( !bookings ) return res.status(404).send('No bookings found.');
+
+  res.send(bookings);
+});
+
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
 
