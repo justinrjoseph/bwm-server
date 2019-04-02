@@ -10,6 +10,7 @@ const Rental = mongoose.model('Rental', new mongoose.Schema({
   title: {
     type: String,
     required: true,
+    min: [1, 'Title must be at least one character.'],
     max: [128, 'Title may not exceed 128 characters.']
   },
   description: {
@@ -46,7 +47,7 @@ const Rental = mongoose.model('Rental', new mongoose.Schema({
   }]
 }));
 
-function validate(rental) {
+function validatePost(rental) {
   const schema = {
     image: Joi.required(),
     title: Joi.string().required().max(128),
@@ -62,5 +63,20 @@ function validate(rental) {
   return Joi.validate(rental, schema);
 }
 
-module.exports = { Rental, validate };
+function validatePatch(rental) {
+  const schema = {
+    title: Joi.string().min(1).max(128),
+    street: Joi.string().min(4),
+    city: Joi.string(),
+    category: Joi.string(),
+    bedrooms: Joi.number(),
+    shared: Joi.boolean(),
+    description: Joi.string(),
+    dailyRate: Joi.number()
+  };
+
+  return Joi.validate(rental, schema);
+}
+
+module.exports = { Rental, validatePost, validatePatch };
 

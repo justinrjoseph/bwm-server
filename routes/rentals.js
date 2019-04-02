@@ -3,10 +3,14 @@ const express = require('express'),
       auth = require('../middleware/auth'),
       validatePayload = require('../middleware/validatePayload'),
       { Rental, User } = require('../models'),
-      { validate: rental } = require('../models/rental');
+      {
+        validatePost: createRental,
+        validatePatch: updateRental
+      } = require('../models/rental');
 
 const noRentalsFoundMsg = 'No rentals found.';
 const rentalNotFoundMsg = 'Rental not found.';
+const notRentalOwnerMsg = 'You are not the owner of that rental.';
 
 router.get('/', async (req, res) => {
   const { city } = req.query;
@@ -39,6 +43,18 @@ router.get('/manage', auth, async (req, res) => {
   res.send(rentals);
 });
 
+router.get('/:id/check-owner', auth, async (req, res) => {
+  const user = res.locals.user;
+
+  const { id } = req.params;
+
+  const rental = await Rental.findById(id);
+
+  if ( !user._id.equals(rental.user._id) ) return res.status(403).send(false);
+
+  res.send(true);
+});
+
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
 
@@ -52,7 +68,7 @@ router.get('/:id', async (req, res) => {
   res.send(rental);
 });
 
-router.post('/', [auth, validatePayload(rental)], async (req, res) => {
+router.post('/', [auth, validatePayload(createRental)], async (req, res) => {
   const {
     image,
     title,
@@ -89,10 +105,38 @@ router.post('/', [auth, validatePayload(rental)], async (req, res) => {
   res.send(rental);
 });
 
+router.patch('/:id', [auth, validatePayload(updateRental)], async (req, res) => {
+  const { id } = req.params;
+  const data = req.body;
+
+  if ( !Object.keys(data).length ) {
+    return res.status(400).send('No updates to process.');
+  }
+
+  const user = res.locals.user;
+
+  const rental = await Rental.findById(id)
+    .populate('user')
+    .select({ __v: 0 });
+
+  if ( !rental ) return res.status(404).send(rentalNotFoundMsg)
+
+  if ( !user._id.equals(rental.user._id) ) {
+    return res.status(403).send(notRentalOwnerMsg);
+  }
+
+  rental.set(data);
+  await rental.save();
+
+  res.send(rental);
+});
+
 router.delete('/:id', auth, async (req, res) => {
   const user = res.locals.user;
 
-  const rental = await Rental.findById(req.params.id)
+  const { id } = req.params;
+
+  const rental = await Rental.findById(id)
     .populate('user', '_id')
     .populate({
       path: 'bookings',
@@ -103,7 +147,7 @@ router.delete('/:id', auth, async (req, res) => {
   if ( !rental ) return res.status(404).send(rentalNotFoundMsg);
 
   if ( !user._id.equals(rental.user._id) ) {
-    return res.status(403).send('You are not the owner of that rental.');
+    return res.status(403).send(notRentalOwnerMsg);
   }
 
   if ( rental.bookings.length ) {

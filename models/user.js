@@ -60,7 +60,7 @@ userSchema.methods.generateJwt = function() {
     return jwt.sign({
       _id: this._id,
       email: this.email
-    }, secret, { expiresIn: '1hr' });
+    }, secret, { expiresIn: '7d' });
   }
 };
 
