@@ -17,6 +17,7 @@ const Rental = mongoose.model('Rental', new mongoose.Schema({
     type: String,
     required: true
   },
+  rating: Number,
   image: {
     type: String,
     required: true

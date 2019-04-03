@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/manage', auth, async (req, res) => {
-  const user = res.locals.user;
+  const user = req.user;
 
   const bookings = await Booking.where({ user })
     .populate('rental');
@@ -36,9 +36,9 @@ router.get('/:id', async (req, res) => {
 });
 
 router.post('/', auth, async (req, res) => {
-  const { start, end, days, guests, totalPrice, rental: rentalReq } = req.body;
+  const user = req.user;
 
-  const user = res.locals.user;
+  const { start, end, days, guests, totalPrice, rental: rentalReq } = req.body;
 
   const booking = new Booking({
     start,

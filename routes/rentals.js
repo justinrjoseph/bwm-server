@@ -2,7 +2,7 @@ const express = require('express'),
       router = express.Router(),
       auth = require('../middleware/auth'),
       validatePayload = require('../middleware/validatePayload'),
-      { Rental, User } = require('../models'),
+      { Rental, User, Review } = require('../models'),
       {
         validatePost: createRental,
         validatePatch: updateRental
@@ -33,7 +33,7 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/manage', auth, async (req, res) => {
-  const user = res.locals.user;
+  const user = req.user;
 
   const rentals = await Rental.where({ user })
     .populate('bookings');
@@ -44,7 +44,7 @@ router.get('/manage', auth, async (req, res) => {
 });
 
 router.get('/:id/check-owner', auth, async (req, res) => {
-  const user = res.locals.user;
+  const user = req.user;
 
   const { id } = req.params;
 
@@ -65,10 +65,26 @@ router.get('/:id', async (req, res) => {
 
   if ( !rental ) return res.status(404).send(rentalNotFoundMsg);
 
+  const result = await Review.aggregate([
+    { $unwind: '$rental' },
+    { $group: {
+      _id: id,
+      avgRating: { $avg: '$rating' }
+    }}
+  ]);
+
+  if ( result.length ) {
+    const { avgRating } = result[0];
+
+    rental.rating = avgRating;
+  }
+
   res.send(rental);
 });
 
 router.post('/', [auth, validatePayload(createRental)], async (req, res) => {
+  const user = req.user;
+
   const {
     image,
     title,
@@ -80,8 +96,6 @@ router.post('/', [auth, validatePayload(createRental)], async (req, res) => {
     description,
     dailyRate
   } = req.body;
-
-  const user = res.locals.user;
 
   const rental = new Rental({
     image,
@@ -113,11 +127,11 @@ router.patch('/:id', [auth, validatePayload(updateRental)], async (req, res) => 
     return res.status(400).send('No updates to process.');
   }
 
-  const user = res.locals.user;
+  const user = req.user;
 
   const rental = await Rental.findById(id)
-    .populate('user')
-    .select({ __v: 0 });
+    .select({ __v: 0 })
+    .populate('user');
 
   if ( !rental ) return res.status(404).send(rentalNotFoundMsg)
 
@@ -132,11 +146,12 @@ router.patch('/:id', [auth, validatePayload(updateRental)], async (req, res) => 
 });
 
 router.delete('/:id', auth, async (req, res) => {
-  const user = res.locals.user;
+  const user = req.user;
 
   const { id } = req.params;
 
   const rental = await Rental.findById(id)
+    .select({ __v: 0 })
     .populate('user', '_id')
     .populate({
       path: 'bookings',
